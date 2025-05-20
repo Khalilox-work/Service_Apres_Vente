@@ -58,9 +58,48 @@ class Technicien(models.Model):
             # Delete machine
             return f"Machine {machine} deleted."
 
-    def donner_prix(self, service):
-        # Logic to calculate price for a service
-        return f"Price for {service} calculated."
+    def donner_prix(self, service, machine_type=None, temps_intervention=None, pieces_remplacees=None):
+        """
+        Calcule le prix de la réparation en fonction :
+        - du type de machine,
+        - du temps d’intervention,
+        - des pièces remplacées.
+        """
+
+        # Coefficients de base
+        tarif_base = 50  # frais fixes
+        taux_horaire = 30  # €/heure
+        prix_pieces = {
+            'carte_mere': 120,
+            'ecran': 80,
+            'clavier': 40,
+            'batterie': 60,
+        }
+
+        # Prix selon le temps d'intervention
+        temps_cout = temps_intervention * taux_horaire if temps_intervention else 0
+
+        # Prix des pièces
+        total_pieces = 0
+        if pieces_remplacees:
+            for piece in pieces_remplacees:
+                total_pieces += prix_pieces.get(piece, 0)  # 0 si pièce inconnue
+
+        # Ajustement selon le type de machine
+        if machine_type == 'ordinateur':
+            majoration = 1.0
+        elif machine_type == 'imprimante':
+            majoration = 1.2
+        elif machine_type == 'serveur':
+            majoration = 1.5
+        else:
+            majoration = 1.0  # type inconnu => pas de majoration
+
+        # Prix total
+        prix_total = (tarif_base + temps_cout + total_pieces) * majoration
+
+        return round(prix_total, 2)
+
     
 
 
