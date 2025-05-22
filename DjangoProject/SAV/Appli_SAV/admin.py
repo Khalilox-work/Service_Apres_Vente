@@ -11,9 +11,16 @@ class CustomUserAdmin(UserAdmin):
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
 
+@admin.register(Client)
+class ClientAdmin(admin.ModelAdmin):
+    list_display = ('user', 'get_email')
+    
+    def get_email(self, obj):
+        return obj.user.email
+    get_email.short_description = 'Email'
+
 # Register your models here
 admin.site.register(CustomUser, CustomUserAdmin)
-admin.site.register(Client)
 admin.site.register(Technicien)
 admin.site.register(Machine)
 admin.site.register(DemandeReparation)

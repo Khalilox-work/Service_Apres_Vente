@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-success text-white">
+        <h2>Validation de Demande</h2>
+    </div>
+    <div class="card-body">
+        <div class="mb-4">
+            <h5>Détails de la Demande #{{ demande.id }}</h5>
+            <p><strong>Machine:</strong> {{ demande.machine }}</p>
+            <p><strong>Description:</strong> {{ demande.description }}</p>
+            <p><strong>Date:</strong> {{ demande.date_creation|date:"d/m/Y H:i" }}</p>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Confirmer Validation</button>
+            <a href="{% url 'technicien_dashboard' %}" class="btn btn-secondary">Annuler</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
