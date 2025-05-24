@@ -47,7 +47,7 @@ class Technicien(models.Model):
         elif action == 'delete':
             return f"Machine {machine} deleted."
 
-    def donner_prix(self, service, machine_type=None, temps_intervention=None, pieces_remplacees=None):
+    def donner_prix(self,  machine_type=None, temps_intervention=None, pieces_remplacees=None):
         tarif_base = 50
         taux_horaire = 30
         prix_pieces = {

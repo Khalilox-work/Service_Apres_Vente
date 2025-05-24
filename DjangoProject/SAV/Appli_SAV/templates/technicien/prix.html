@@ -1,34 +1,128 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header bg-info text-white">
-        <h2>Calcul du Prix de Réparation</h2>
-        <h5>Demande #{{ demande.id }} - {{ demande.machine }}</h5>
-    </div>
-    <div class="card-body">
-        <form method="post">
-            {% csrf_token %}
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="form-label">Heures Estimées:</label>
-                    {{ form.hours_needed }}
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Pièces à Remplacer:</label>
-                    {{ form.parts_needed }}
-                </div>
-            </div>
-            <button type="submit" class="btn btn-info">Calculer</button>
-            <a href="{% url 'technicien_dashboard' %}" class="btn btn-secondary">Retour</a>
-        </form>
-
-        {% if price %}
-        <div class="alert alert-success mt-4">
-            <h4>Prix Estimé: {{ price }} €</h4>
-            <p class="mb-0">Inclut main d'œuvre et pièces détachées</p>
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-warning text-dark">
+            <h2><i class="bi bi-calculator me-2"></i>Devis de Réparation</h2>
+            <h5 class="mb-0">Machine: {{ demande.machine.get_machine_type_display }}</h5>
         </div>
-        {% endif %}
+        
+        <div class="card-body">
+            <!-- Price Calculator Form -->
+            <form id="priceForm" method="post">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Labor Hours -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Heures de Main d'Œuvre</label>
+                        <input type="number" name="hours_needed" class="form-control" 
+                               min="0.5" max="24" step="0.5" value="{{ form.hours_needed.value|default:'1' }}" required>
+                        <small class="text-muted">Durée estimée de l'intervention</small>
+                    </div>
+                    
+                    <!-- Parts Selection -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Pièces à Remplacer</label>
+                        <div class="parts-grid">
+                            {% for part in form.parts_needed %}
+                            <div class="form-check part-card">
+                                <input class="form-check-input" type="checkbox" 
+                                       name="parts_needed" value="{{ part.data.value }}" 
+                                       id="part{{ forloop.counter }}">
+                                <label class="form-check-label" for="part{{ forloop.counter }}">
+                                    <i class="bi bi-motherboard me-1"></i> {{ part.choice_label }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Real-time Preview -->
+                <div class="alert alert-info mb-4">
+                    <h5 class="mb-1">Estimation Préliminaire:</h5>
+                    <div id="pricePreview">€--.--</div>
+                    <small class="text-muted">(Actualisé après soumission)</small>
+                </div>
+                
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{% url 'technicien_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Retour
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-file-earmark-text me-1"></i> Générer Devis
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Final Price Display (After Submission) -->
+            {% if price %}
+            <div class="quote-result mt-4 p-3 bg-light rounded">
+                <h4 class="text-success"><i class="bi bi-check-circle me-2"></i>Devis Final</h4>
+                <table class="table table-bordered">
+                    <tr><th>Machine</th><td>{{ demande.machine.get_machine_type_display }}</td></tr>
+                    <tr><th>Temps Estimé</th><td>{{ form.hours_needed.value }} heures</td></tr>
+                    <tr><th>Pièces</th><td>{{ form.parts_needed.value|join:", "|default:"Aucune" }}</td></tr>
+                    <tr class="table-primary"><th>Total</th><td class="fw-bold">€{{ price }}</td></tr>
+                </table>
+                <button class="btn btn-sm btn-outline-primary" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i> Imprimer
+                </button>
+            </div>
+            {% endif %}
+        </div>
     </div>
 </div>
+
+<style>
+    .parts-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+    .part-card {
+        border: 1px solid #dee2e6;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+    }
+    .part-card:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+
+<script>
+// Real-time Price Preview
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('priceForm');
+    const inputs = form.querySelectorAll('input[type="number"], input[type="checkbox"]');
+    
+    // Mock calculation (replace with actual AJAX call if needed)
+    function updatePreview() {
+        const hours = parseFloat(form.querySelector('[name="hours_needed"]').value) || 0;
+        const parts = Array.from(form.querySelectorAll('[name="parts_needed"]:checked'))
+                          .map(part => part.value);
+        
+        // Simplified calculation (matches your model logic)
+        const basePrice = 50;
+        const hourlyRate = 30;
+        const partsPrices = {
+            'carte_mere': 120,
+            'ecran': 80,
+            'batterie': 60,
+            'clavier': 40
+        };
+        
+        const laborCost = hours * hourlyRate;
+        const partsCost = parts.reduce((sum, part) => sum + (partsPrices[part] || 0), 0);
+        const total = basePrice + laborCost + partsCost;
+        
+        document.getElementById('pricePreview').textContent = `€${total.toFixed(2)}`;
+    }
+    
+    inputs.forEach(input => input.addEventListener('change', updatePreview));
+    updatePreview(); // Initial calculation
+});
+</script>
 {% endblock %}

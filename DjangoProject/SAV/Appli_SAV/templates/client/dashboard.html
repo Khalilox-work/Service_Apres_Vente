@@ -1,34 +1,48 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2 class="mb-4">Vos Machines</h2>
-<div class="table-responsive">
-    <table class="table table-hover">
-        <thead class="table-light">
-            <tr>
-                <th>ID</th>
-                <th>Type</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for machine in machines %}
-            <tr>
-                <td>{{ machine.id }}</td>
-                <td>{{ machine.get_machine_type_display }}</td>
-                <td>
-                    <a href="{% url 'creer_demande' machine.id %}" class="btn btn-sm btn-warning">
-                        Demander Réparation
-                    </a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="3" class="text-center">Aucune machine enregistrée</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="container mt-4">
+  <h2>Vos Machines</h2>
+  <div class="row">
+    {% for machine in machines %}
+    <div class="col-md-4 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">{{ machine.get_machine_type_display }}</h5>
+          <a href="{% url 'creer_demande' machine.id %}" class="btn btn-sm btn-primary">
+            Demander une Réparation
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <h2>Vos Demandes de Réparation</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Machine</th>
+        <th>Description</th>
+        <th>Statut</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for demande in demandes %}
+      <tr>
+        <td>{{ demande.machine }}</td>
+        <td>{{ demande.description|truncatechars:50 }}</td>
+        <td>
+          {% if demande.date_validation %}
+            <span class="badge bg-success">Validée</span>
+          {% else %}
+            <span class="badge bg-warning">En Attente</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 <a href="{% url 'ajout_machine' %}" class="btn btn-success">
     <i class="bi bi-plus-circle"></i> Ajouter Machine

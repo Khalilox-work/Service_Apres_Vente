@@ -7,6 +7,7 @@ from django.utils import timezone
 from .models import Machine, DemandeReparation, Technicien, Client
 from .forms import MachineForm, DemandeReparationForm, PriceCalculationForm
 
+
 # ======================
 # VUES CLIENT
 # ======================
@@ -16,6 +17,7 @@ def redirect_to_client_dashboard(request):
     if hasattr(request.user, 'client_profile'):
         return redirect('client_dashboard')
     return redirect('login')
+    
 
 @login_required
 def client_dashboard(request):
@@ -169,3 +171,4 @@ def register(request):
     else:
         form = UserCreationForm()
     return render(request, 'registration/register.html', {'form': form})
+    

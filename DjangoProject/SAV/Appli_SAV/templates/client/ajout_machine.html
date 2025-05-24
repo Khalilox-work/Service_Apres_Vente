@@ -1,19 +1,61 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header bg-primary text-white">
-        <h2>Enregistrer une Nouvelle Machine</h2>
-    </div>
-    <div class="card-body">
-        <form method="post">
-            {% csrf_token %}
-            <div class="mb-3">
-                {{ form.as_p }}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0"><i class="bi bi-pc-display me-2"></i>Enregistrer une Nouvelle Machine</h2>
             </div>
-            <button type="submit" class="btn btn-primary">Enregistrer</button>
-            <a href="{% url 'client_dashboard' %}" class="btn btn-secondary">Annuler</a>
-        </form>
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.machine_type.id_for_label }}" class="form-label fw-bold">
+                            Type de Machine
+                        </label>
+                        <select class="form-select" id="{{ form.machine_type.id_for_label }}" name="{{ form.machine_type.name }}" required>
+                            <option value="" selected disabled>Choisir un type...</option>
+                            {% for value, display in form.machine_type.field.choices %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="invalid-feedback">
+                            Sélection obligatoire
+                        </div>
+                        <small class="text-muted">Sélectionnez le type d'appareil à enregistrer</small>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="{% url 'client_dashboard' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i>Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+// Client-side validation
+(function() {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+</script>
 {% endblock %}

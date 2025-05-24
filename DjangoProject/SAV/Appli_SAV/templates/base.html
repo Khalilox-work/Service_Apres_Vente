@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -11,7 +12,7 @@
         <div class="container">
             <a class="navbar-brand" href="#">ServiceTech</a>
             {% if user.is_authenticated %}
-                <a class="btn btn-danger" href="{% url 'logout' %}">Déconnexion</a>
+                <a href="{% url 'logout' %}" class="btn btn-danger">Déconnexion</a>
             {% endif %}
         </div>
     </nav>
