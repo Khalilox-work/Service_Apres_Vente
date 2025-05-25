@@ -1,5 +1,6 @@
 from django import forms
-from .models import Machine, DemandeReparation
+from django.contrib.auth.forms import UserCreationForm
+from .models import Machine, DemandeReparation, CustomUser, Technicien
 
 # Machine Form (for clients to register machines)
 class MachineForm(forms.ModelForm):
@@ -30,6 +31,45 @@ class DemandeReparationForm(forms.ModelForm):
         labels = {
             'description': 'Problem Description'
         }
+
+# Custom Registration Form
+class CustomRegistrationForm(UserCreationForm):
+    ROLE_CHOICES = [
+        ('client', 'Client'),
+        ('technicien', 'Technicien')
+    ]
+    
+    role = forms.ChoiceField(
+        choices=ROLE_CHOICES,
+        widget=forms.RadioSelect,
+        label='Type de Compte',
+        initial='client'
+    )
+    
+    specialite = forms.CharField(
+        max_length=100,
+        required=False,
+        label='Spécialité (Pour les techniciens)',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ex: Réparation ordinateurs, Imprimantes, etc.'
+        })
+    )
+    
+    class Meta(UserCreationForm.Meta):
+        model = CustomUser
+        fields = UserCreationForm.Meta.fields + ('email', 'first_name', 'last_name', 'num_tele')
+        
+    def clean(self):
+        cleaned_data = super().clean()
+        role = cleaned_data.get('role')
+        specialite = cleaned_data.get('specialite')
+        
+        if role == 'technicien' and not specialite:
+            raise forms.ValidationError(
+                "La spécialité est requise pour les comptes techniciens."
+            )
+        return cleaned_data
 
 # Price Calculator Form (for technicians)
 class PriceCalculationForm(forms.Form):

@@ -1,12 +1,121 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-<h2>Login</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Login</button>
-  <p><a href="{% url 'password_reset' %}">Forgot password?</a></p>
-  <a href="{% url 'logout' %}">Logout</a>
-</form>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <!-- Logo and Welcome -->
+            <div class="text-center mb-4">
+                <i class="bi bi-tools text-primary" style="font-size: 3rem;"></i>
+                <h1 class="h3 mb-3 fw-normal">Service Après-Vente</h1>
+                <p class="text-muted">Connectez-vous pour accéder à votre espace</p>
+            </div>
+
+            <!-- Login Card -->
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <!-- Error Messages -->
+                    {% if form.errors %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Nom d'utilisateur ou mot de passe incorrect.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endif %}
+
+                    <!-- Login Form -->
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Username Field -->
+                        <div class="form-floating mb-3">
+                            <input type="text" name="username" class="form-control" 
+                                   id="id_username" placeholder="Nom d'utilisateur" required>
+                            <label for="id_username">Nom d'utilisateur</label>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="form-floating mb-3">
+                            <input type="password" name="password" class="form-control" 
+                                   id="id_password" placeholder="Mot de passe" required>
+                            <label for="id_password">Mot de passe</label>
+                        </div>
+
+                        <!-- Remember Me -->
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" name="remember" id="remember">
+                            <label class="form-check-label" for="remember">
+                                Se souvenir de moi
+                            </label>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary btn-lg" type="submit">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Se connecter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Registration Link -->
+            <div class="card mt-3 shadow-sm">
+                <div class="card-body text-center">
+                    <p class="mb-0">
+                        Pas encore de compte ? 
+                        <a href="{% url 'register' %}" class="text-decoration-none">
+                            Créer un compte
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Help Links -->
+            <div class="text-center mt-3">
+                <a href="#" class="text-muted text-decoration-none small">
+                    <i class="bi bi-question-circle me-1"></i>Aide
+                </a>
+                <span class="text-muted mx-2">•</span>
+                <a href="#" class="text-muted text-decoration-none small">
+                    <i class="bi bi-lock me-1"></i>Mot de passe oublié
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-floating > label {
+    padding-left: 1rem;
+}
+.form-floating > .form-control {
+    padding-left: 1rem;
+}
+.card {
+    border: none;
+    border-radius: 10px;
+}
+.btn-primary {
+    padding: 0.8rem;
+}
+</style>
+
+<script>
+// Form validation
+(function() {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+</script>
 {% endblock %}

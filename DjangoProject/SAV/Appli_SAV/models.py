@@ -89,6 +89,7 @@ class DemandeReparation(models.Model):
     description = models.TextField()
     date_creation = models.DateTimeField(auto_now_add=True)
     date_validation = models.DateTimeField(null=True, blank=True)
+    prix = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
         return f"Demande #{self.id} for {self.machine}"
@@ -105,5 +106,6 @@ class ServiceReparation(models.Model):
 def create_user_profile(sender, instance, created, **kwargs):
     """Automatically create profile when new user registers"""
     if created:
-        if not hasattr(instance, 'client_profile'):
+        # Don't create client profile if user is a technician
+        if not hasattr(instance, 'technicien_profile') and not hasattr(instance, 'client_profile'):
             Client.objects.create(user=instance)

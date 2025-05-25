@@ -1,50 +1,233 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2>Vos Machines</h2>
-  <div class="row">
-    {% for machine in machines %}
-    <div class="col-md-4 mb-4">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">{{ machine.get_machine_type_display }}</h5>
-          <a href="{% url 'creer_demande' machine.id %}" class="btn btn-sm btn-primary">
-            Demander une Réparation
-          </a>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">
+            <i class="bi bi-person-workspace me-2"></i>Tableau de Bord Client
+        </h1>
+        <div class="text-muted">
+            <i class="bi bi-calendar3 me-1"></i>{{ current_date|date:"l d F Y" }}
         </div>
-      </div>
     </div>
-    {% endfor %}
-  </div>
 
-  <h2>Vos Demandes de Réparation</h2>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Machine</th>
-        <th>Description</th>
-        <th>Statut</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for demande in demandes %}
-      <tr>
-        <td>{{ demande.machine }}</td>
-        <td>{{ demande.description|truncatechars:50 }}</td>
-        <td>
-          {% if demande.date_validation %}
-            <span class="badge bg-success">Validée</span>
-          {% else %}
-            <span class="badge bg-warning">En Attente</span>
-          {% endif %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <!-- Statistics Cards -->
+    <div class="row g-3 mb-4">
+        <!-- Total Machines Card -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Total Machines</h6>
+                            <h2 class="mt-2 mb-0">{{ machines|length }}</h2>
+                        </div>
+                        <div class="display-6">
+                            <i class="bi bi-pc-display"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Requests Card -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Demandes en Cours</h6>
+                            <h2 class="mt-2 mb-0">{{ demandes|length }}</h2>
+                        </div>
+                        <div class="display-6">
+                            <i class="bi bi-tools"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Validated Requests Card -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Réparations Validées</h6>
+                            <h2 class="mt-2 mb-0">{{ validated_count }}</h2>
+                        </div>
+                        <div class="display-6">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Cost Card -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Coût Total</h6>
+                            <h2 class="mt-2 mb-0">€{{ total_cost }}</h2>
+                        </div>
+                        <div class="display-6">
+                            <i class="bi bi-currency-euro"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Machines Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-pc-display me-2"></i>Vos Machines
+            </h5>
+            <a href="{% url 'ajout_machine' %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-circle me-1"></i>Ajouter Machine
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                {% for machine in machines %}
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="display-6 text-primary me-3">
+                                    <i class="bi bi-{% if machine.machine_type == 'PC' %}laptop{% elif machine.machine_type == 'PRINTER' %}printer{% else %}pc-display{% endif %}"></i>
+                                </div>
+                                <h5 class="card-title mb-0">{{ machine.get_machine_type_display }}</h5>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    {% with repair_count=machine.demandereparation_set.count %}
+                                        {{ repair_count }} réparation{{ repair_count|pluralize }}
+                                    {% endwith %}
+                                </small>
+                                <a href="{% url 'creer_demande' machine.id %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-tools me-1"></i>Demander Réparation
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-4">
+                    <div class="text-muted">
+                        <i class="bi bi-pc-display display-4 mb-3 d-block"></i>
+                        <h5>Aucune Machine Enregistrée</h5>
+                        <p class="mb-3">Commencez par ajouter votre première machine</p>
+                        <a href="{% url 'ajout_machine' %}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-1"></i>Ajouter Machine
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Repair Requests Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-list-check me-2"></i>Vos Demandes de Réparation
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Machine</th>
+                            <th>Description</th>
+                            <th>Prix</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for demande in demandes %}
+                        <tr>
+                            <td>
+                                <span class="badge bg-secondary">#{{ demande.id }}</span>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar-event me-1"></i>
+                                    {{ demande.date_creation|date:"d/m/Y" }}
+                                </small>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-{% if demande.machine.machine_type == 'PC' %}laptop{% elif demande.machine.machine_type == 'PRINTER' %}printer{% else %}pc-display{% endif %} text-muted me-2"></i>
+                                    {{ demande.machine.get_machine_type_display }}
+                                </div>
+                            </td>
+                            <td>
+                                <small>{{ demande.description|truncatechars:50 }}</small>
+                            </td>
+                            <td>
+                                {% if demande.prix %}
+                                    <span class="badge bg-success">€{{ demande.prix }}</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark">En attente</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if demande.date_validation %}
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle me-1"></i>Validée
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="bi bi-clock-history me-1"></i>En Attente
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="bi bi-emoji-smile display-6 mb-3 d-block"></i>
+                                    <h5>Aucune Demande de Réparation</h5>
+                                    <p class="mb-0">Vos demandes de réparation apparaîtront ici</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
-<a href="{% url 'ajout_machine' %}" class="btn btn-success">
-    <i class="bi bi-plus-circle"></i> Ajouter Machine
-</a>
+
+<style>
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-2px);
+}
+.display-6 {
+    font-size: 2rem;
+}
+.table > :not(caption) > * > * {
+    padding: 1rem 0.75rem;
+}
+.badge {
+    padding: 0.5em 0.75em;
+}
+</style>
 {% endblock %}

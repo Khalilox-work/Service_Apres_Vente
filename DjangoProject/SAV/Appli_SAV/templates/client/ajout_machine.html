@@ -1,48 +1,108 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card border-primary">
-            <div class="card-header bg-primary text-white">
-                <h2 class="mb-0"><i class="bi bi-pc-display me-2"></i>Enregistrer une Nouvelle Machine</h2>
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">
+                    <i class="bi bi-plus-circle me-2"></i>Nouvelle Machine
+                </h1>
+                <div class="text-muted">
+                    <i class="bi bi-calendar3 me-1"></i>{{ current_date|date:"l d F Y" }}
+                </div>
             </div>
-            <div class="card-body">
-                <form method="post" class="needs-validation" novalidate>
-                    {% csrf_token %}
-                    
-                    <div class="mb-3">
-                        <label for="{{ form.machine_type.id_for_label }}" class="form-label fw-bold">
-                            Type de Machine
-                        </label>
-                        <select class="form-select" id="{{ form.machine_type.id_for_label }}" name="{{ form.machine_type.name }}" required>
-                            <option value="" selected disabled>Choisir un type...</option>
-                            {% for value, display in form.machine_type.field.choices %}
-                                <option value="{{ value }}">{{ display }}</option>
-                            {% endfor %}
-                        </select>
-                        <div class="invalid-feedback">
-                            Sélection obligatoire
+
+            <!-- Add Machine Form Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-pc-display me-2"></i>Détails de la Machine
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.machine_type.id_for_label }}" class="form-label">
+                                <i class="bi bi-tag me-1"></i>Type de Machine
+                            </label>
+                            <select class="form-select form-select-lg" 
+                                    id="{{ form.machine_type.id_for_label }}" 
+                                    name="{{ form.machine_type.name }}" 
+                                    required>
+                                <option value="" selected disabled>Choisir un type...</option>
+                                {% for value, display in form.machine_type.field.choices %}
+                                    <option value="{{ value }}">
+                                        {% if value == 'PC' %}
+                                            <i class="bi bi-laptop"></i>
+                                        {% elif value == 'PRINTER' %}
+                                            <i class="bi bi-printer"></i>
+                                        {% else %}
+                                            <i class="bi bi-pc-display"></i>
+                                        {% endif %}
+                                        {{ display }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">
+                                Veuillez sélectionner un type de machine
+                            </div>
+                            <div class="form-text mt-2">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Sélectionnez le type d'appareil que vous souhaitez enregistrer
+                            </div>
                         </div>
-                        <small class="text-muted">Sélectionnez le type d'appareil à enregistrer</small>
-                    </div>
-                    
-                    <div class="d-flex justify-content-end gap-2 mt-4">
-                        <a href="{% url 'client_dashboard' %}" class="btn btn-outline-secondary">
-                            <i class="bi bi-x-circle me-1"></i>Annuler
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check-circle me-1"></i>Enregistrer
-                        </button>
-                    </div>
-                </form>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-4 pt-2 border-top">
+                            <a href="{% url 'client_dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>Retour
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-1"></i>Enregistrer la Machine
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Help Card -->
+            <div class="card mt-4 bg-light border-0">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="bi bi-question-circle me-2"></i>Besoin d'aide?
+                    </h6>
+                    <p class="card-text small mb-0">
+                        Sélectionnez le type de machine que vous souhaitez faire réparer. 
+                        Une fois enregistrée, vous pourrez créer des demandes de réparation pour cette machine.
+                    </p>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+<style>
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-2px);
+}
+.form-select-lg {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+.btn {
+    padding: 0.5rem 1rem;
+}
+</style>
+
 <script>
-// Client-side validation
+// Form validation
 (function() {
     'use strict'
     const forms = document.querySelectorAll('.needs-validation')

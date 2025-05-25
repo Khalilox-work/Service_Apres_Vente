@@ -5,11 +5,11 @@
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3">
-            <i class="bi bi-wrench-adjustable me-2"></i>Tableau de Bord Technicien
+            <i class="bi bi-clock-history me-2"></i>Historique des Réparations
         </h1>
         <div class="d-flex align-items-center gap-3">
-            <a href="{% url 'historique_reparations' %}" class="btn btn-outline-primary">
-                <i class="bi bi-clock-history me-1"></i>Historique des Réparations
+            <a href="{% url 'technicien_dashboard' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Retour au Tableau de Bord
             </a>
             <div class="text-muted">
                 <i class="bi bi-calendar3 me-1"></i>{{ current_date|date:"l d F Y" }}
@@ -19,58 +19,7 @@
 
     <!-- Statistics Cards -->
     <div class="row g-3 mb-4">
-        <!-- Pending Requests Card -->
-        <div class="col-md-6 col-xl-3">
-            <div class="card bg-warning text-dark h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title mb-0">Demandes en Attente</h6>
-                            <h2 class="mt-2 mb-0">{{ pending_requests.count }}</h2>
-                        </div>
-                        <div class="display-6">
-                            <i class="bi bi-clock-history"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Validated Requests Card -->
-        <div class="col-md-6 col-xl-3">
-            <div class="card bg-success text-white h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title mb-0">Demandes Validées</h6>
-                            <h2 class="mt-2 mb-0">{{ validated_count }}</h2>
-                        </div>
-                        <div class="display-6">
-                            <i class="bi bi-check-circle"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Your Specialty Card -->
-        <div class="col-md-6 col-xl-3">
-            <div class="card bg-info text-white h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title mb-0">Votre Spécialité</h6>
-                            <p class="mt-2 mb-0 h5">{{ user.technicien_profile.specialite }}</p>
-                        </div>
-                        <div class="display-6">
-                            <i class="bi bi-tools"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Total Interventions Card -->
+        <!-- Total Interventions -->
         <div class="col-md-6 col-xl-3">
             <div class="card bg-primary text-white h-100">
                 <div class="card-body">
@@ -80,7 +29,58 @@
                             <h2 class="mt-2 mb-0">{{ total_interventions }}</h2>
                         </div>
                         <div class="display-6">
-                            <i class="bi bi-graph-up"></i>
+                            <i class="bi bi-tools"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- This Month -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Ce Mois</h6>
+                            <h2 class="mt-2 mb-0">{{ month_interventions }}</h2>
+                        </div>
+                        <div class="display-6">
+                            <i class="bi bi-calendar-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Time -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Temps Moyen</h6>
+                            <h2 class="mt-2 mb-0">{{ avg_time }} jours</h2>
+                        </div>
+                        <div class="display-6">
+                            <i class="bi bi-stopwatch"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Revenue -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Revenu Total</h6>
+                            <h2 class="mt-2 mb-0">€{{ total_revenue }}</h2>
+                        </div>
+                        <div class="display-6">
+                            <i class="bi bi-currency-euro"></i>
                         </div>
                     </div>
                 </div>
@@ -88,11 +88,11 @@
         </div>
     </div>
 
-    <!-- Pending Requests Table -->
+    <!-- Repair History Table -->
     <div class="card shadow-sm">
         <div class="card-header bg-light">
             <h5 class="card-title mb-0">
-                <i class="bi bi-list-check me-2"></i>Demandes en Attente de Validation
+                <i class="bi bi-list-check me-2"></i>Liste des Interventions
             </h5>
         </div>
         <div class="card-body">
@@ -101,15 +101,17 @@
                     <thead class="table-light">
                         <tr>
                             <th>ID</th>
-                            <th>Date</th>
+                            <th>Date Création</th>
+                            <th>Date Validation</th>
                             <th>Client</th>
                             <th>Machine</th>
                             <th>Description</th>
-                            <th>Actions</th>
+                            <th>Prix</th>
+                            <th>Durée</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for demande in pending_requests %}
+                        {% for demande in reparations %}
                         <tr>
                             <td>
                                 <span class="badge bg-secondary">#{{ demande.id }}</span>
@@ -121,39 +123,42 @@
                                 </small>
                             </td>
                             <td>
+                                <small class="text-success">
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    {{ demande.date_validation|date:"d/m/Y" }}
+                                </small>
+                            </td>
+                            <td>
                                 <div class="d-flex align-items-center">
                                     <i class="bi bi-person-circle text-muted me-2"></i>
                                     {{ demande.machine.client.user.get_full_name }}
                                 </div>
                             </td>
                             <td>
-                                <span class="badge bg-light text-dark">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-{% if demande.machine.machine_type == 'PC' %}laptop{% elif demande.machine.machine_type == 'PRINTER' %}printer{% else %}pc-display{% endif %} text-muted me-2"></i>
                                     {{ demande.machine.get_machine_type_display }}
-                                </span>
+                                </div>
                             </td>
                             <td>
                                 <small>{{ demande.description|truncatechars:50 }}</small>
                             </td>
                             <td>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="{% url 'valider_demande' demande.id %}" 
-                                       class="btn btn-success">
-                                        <i class="bi bi-check-lg"></i> Valider
-                                    </a>
-                                    <a href="{% url 'calculer_prix' demande.id %}" 
-                                       class="btn btn-info">
-                                        <i class="bi bi-calculator"></i> Prix
-                                    </a>
-                                </div>
+                                <span class="badge bg-success">€{{ demande.prix }}</span>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    {{ demande.duree_reparation }} jours
+                                </small>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center py-4">
+                            <td colspan="8" class="text-center py-4">
                                 <div class="text-muted">
                                     <i class="bi bi-emoji-smile display-6 mb-3 d-block"></i>
-                                    <h5>Aucune demande en attente</h5>
-                                    <p class="mb-0">Toutes les demandes ont été traitées!</p>
+                                    <h5>Aucune Intervention</h5>
+                                    <p class="mb-0">Votre historique des réparations apparaîtra ici</p>
                                 </div>
                             </td>
                         </tr>
@@ -179,8 +184,8 @@
 .table > :not(caption) > * > * {
     padding: 1rem 0.75rem;
 }
-.btn-group-sm > .btn {
-    padding: 0.25rem 0.5rem;
+.badge {
+    padding: 0.5em 0.75em;
 }
 </style>
-{% endblock %}
+{% endblock %} 
